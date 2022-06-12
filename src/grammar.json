@@ -28,7 +28,7 @@
     },
     "id": {
       "type": "PATTERN",
-      "value": "([a-z0-9])+(-([a-z0-9])+)*"
+      "value": "%?[^\\P{XID_Start}\\p{Mark}][^\\p{Uppercase_Letter}_\\P{XID_Continue}]*(-[^\\P{XID_Start}\\p{Mark}][^\\p{Uppercase_Letter}_\\P{XID_Continue}]*)*"
     },
     "ty": {
       "type": "CHOICE",

@@ -1,13 +1,14 @@
 /// <reference types="tree-sitter-cli/dsl" />
 
-// For whatever reason, this contains some surrogates, so doesn't work.
-// const lowercase = require("@unicode/unicode-14.0.0/General_Category/Lowercase_Letter/regex.js");
-const lowercase = /[a-z0-9]/;
-
 /// Creates a rule which parses the passed rule separated by commas, allowing for trailing commas.
 function commaSeparated(rule) {
     return optional(seq(rule, repeat(seq(",", rule)), optional(",")));
 }
+
+// One 'part' of an identifier; the bits between the dashes.
+// Note: this regex uses Unicode property escapes (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Unicode_Property_Escapes).
+// `\p` matches characters which _do_ have the property, and `\P` matches ones that _don't_.
+const idPart = /[^\P{XID_Start}\p{Mark}][^\p{Uppercase_Letter}_\P{XID_Continue}]*/u;
 
 module.exports = grammar({
     name: "wit",
@@ -19,11 +20,11 @@ module.exports = grammar({
     rules: {
         file: $ => repeat($.item),
 
-        _whitespace: $ => /[ \n\r\t]/,
-        comment:  $ => choice(/\/\/.*?\n/, /\/\*.*?\*\//),
+        _whitespace: $ => /[ \n\r\t]/u,
+        comment: $ => choice(/\/\/.*?\n/, /\/\*.*?\*\//u),
 
-        // TODO: support unicode and % form of idents
-        id: $ => new RegExp(`(${lowercase.source})+(-(${lowercase.source})+)*`),
+        // TODO: enforce NFC normalization. I think I'll need an external scanner for that.
+        id: $ => new RegExp(`%?${idPart.source}(-${idPart.source})*`, "u"),
 
         ty: $ =>
             choice(

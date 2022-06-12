@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@unicode/unicode-14.0.0": "^1.2.2",
     "nan": "^2.16.0",
     "tree-sitter-cli": "^0.20.6"
   },
