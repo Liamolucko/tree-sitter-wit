@@ -65,10 +65,10 @@ module.exports = grammar({
             ),
 
         option: $ => seq("option", "<", $.ty, ">"),
-        expected: $ => seq("expected", "<", $.ty, ",", $.ty, ">"),
+        expected: $ => seq("expected", "<", field("ok", $.ty), ",", field("err", $.ty), ">"),
         tuple: $ => seq("tuple", "<", commaSeparated($.ty), ">"),
         list: $ => seq("list", "<", $.ty, ">"),
-        stream: $ => seq("stream", "<", $.ty, ",", $.ty, ">"),
+        stream: $ => seq("stream", "<", field("item", $.ty), ",", field("return", $.ty), ">"),
 
         use: $ => seq("use", $._useNames, "from", $.id),
         _useNames: $ =>
@@ -77,27 +77,36 @@ module.exports = grammar({
                 seq("{", $._useNameList, "}"),
             ),
         _useNameList: $ => seq($._useName, repeat(seq(",", $._useName))),
-        _useName: $ => choice($.id, seq($.id, "as", $.id)),
+        _useName: $ => seq(field("name", $.id), optional(seq("as", field("alias", $.id)))),
 
-        alias: $ => seq("type", $.id, "=", $.ty),
+        alias: $ => seq("type", field("name", $.id), "=", field("target", $.ty)),
 
-        record: $ => seq("record", $.id, "{", commaSeparated($._field), "}"),
-        _field: $ => seq($.id, ":", $.ty),
+        record: $ => seq("record", field("name", $.id), "{", commaSeparated($.field), "}"),
+        field: $ => seq(field("name", $.id), ":", field("ty", $.ty)),
 
-        flags: $ => seq("flags", $.id, "{", commaSeparated($.id), "}"),
+        flags: $ => seq("flags", field("name", $.id), "{", commaSeparated(field("flag", $.id)), "}"),
 
-        variant: $ => seq("variant", $.id, "{", commaSeparated($._case), "}"),
-        _case: $ => seq($.id, optional(seq("(", $.ty, ")"))),
+        variant: $ => seq("variant", field("name", $.id), "{", commaSeparated($.case), "}"),
+        case: $ => seq(field("name", $.id), optional(seq("(", field("payload", $.ty), ")"))),
 
-        enum: $ => seq("enum", $.id, "{", commaSeparated($.id), "}"),
+        enum: $ => seq("enum", field("name", $.id), "{", commaSeparated(field("case", $.id)), "}"),
 
-        union: $ => seq("union", $.id, "{", commaSeparated($.ty), "}"),
+        union: $ => seq("union", field("name", $.id), "{", commaSeparated(field("case", $.ty)), "}"),
 
         func: $ =>
-            seq($.id, ":", optional("async"), "func", "(", commaSeparated($._arg), ")", optional(seq("->", $.ty))),
-        _arg: $ => seq($.id, ":", $.ty),
+            seq(
+                field("name", $.id),
+                ":",
+                optional("async"),
+                "func",
+                "(",
+                commaSeparated($.arg),
+                ")",
+                optional(seq("->", field("return", $.ty))),
+            ),
+        arg: $ => seq(field("name", $.id), ":", field("ty", $.ty)),
 
-        resource: $ => seq("resource", $.id, optional(seq("{", repeat($._resource_item), "}"))),
+        resource: $ => seq("resource", field("name", $.id), optional(seq("{", repeat($._resource_item), "}"))),
         _resource_item: $ => seq(optional("static"), $.func),
     },
 });
