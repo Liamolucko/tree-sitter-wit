@@ -8,6 +8,7 @@ function commaSeparated(rule) {
 // One 'part' of an identifier; the bits between the dashes.
 // Note: this regex uses Unicode property escapes (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Unicode_Property_Escapes).
 // `\p` matches characters which _do_ have the property, and `\P` matches ones that _don't_.
+// Note: neither XID_Start not XID_Continue contain '-', so we don't have to manually exclude it.
 const idPart = /[^\P{XID_Start}\p{Mark}][^\p{Uppercase_Letter}_\P{XID_Continue}]*/u;
 
 module.exports = grammar({
@@ -46,6 +47,7 @@ module.exports = grammar({
                 $.expected,
                 $.tuple,
                 $.list,
+                $.future,
                 $.stream,
                 seq("handle", $.id),
                 $.id,
@@ -68,6 +70,7 @@ module.exports = grammar({
         expected: $ => seq("expected", "<", field("ok", $.ty), ",", field("err", $.ty), ">"),
         tuple: $ => seq("tuple", "<", commaSeparated($.ty), ">"),
         list: $ => seq("list", "<", $.ty, ">"),
+        future: $ => seq("future", "<", $.ty, ">"),
         stream: $ => seq("stream", "<", field("item", $.ty), ",", field("return", $.ty), ">"),
 
         use: $ => seq("use", $._useNames, "from", $.id),

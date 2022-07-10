@@ -238,6 +238,21 @@
     }
   },
   {
+    "type": "future",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "ty",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "item",
     "named": true,
     "fields": {},
@@ -417,6 +432,10 @@
       "types": [
         {
           "type": "expected",
+          "named": true
+        },
+        {
+          "type": "future",
           "named": true
         },
         {
@@ -608,6 +627,10 @@
   },
   {
     "type": "func",
+    "named": false
+  },
+  {
+    "type": "future",
     "named": false
   },
   {

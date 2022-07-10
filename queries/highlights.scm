@@ -51,6 +51,7 @@
     "expected"
     "tuple"
     "list"
+    "future"
     "stream"
     "use"
     "as"
